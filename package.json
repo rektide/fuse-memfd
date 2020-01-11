@@ -1,7 +1,7 @@
 {
   "name": "fuse-memfd",
   "version": "0.0.0",
-  "description": "An in-memory filesystem backed by FUSE",
+  "description": "An in-memory filesystem backed by FUSE & memfd_create",
   "main": "index.js",
   "dependencies": {
     "filesystem-constants": "^1.0.0",

@@ -1,6 +1,6 @@
 # fuse-memfd
 
-In memory filesystem backed by FUSE and Javascript and memfd_create
+> In memory filesystem backed by FUSE & memfd_create
 
 ```
 npm install -g fuse-memfd
