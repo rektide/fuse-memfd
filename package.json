@@ -1,23 +1,24 @@
 {
-  "name": "fuse-memfs",
+  "name": "fuse-memfd",
   "version": "0.0.0",
   "description": "An in-memory filesystem backed by FUSE",
   "main": "index.js",
   "dependencies": {
     "filesystem-constants": "^1.0.0",
-    "fuse-native": "fuse-friends/fuse-native"
+    "fuse-native": "fuse-friends/fuse-native",
+    "memfd-create": "^1.0.0"
   },
   "bin": {
-    "fuse-memfs": "./bin.js"
+    "fuse-memfd": "./bin.js"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/mafintosh/fuse-memory.git"
+    "url": "https://github.com/rektide/fuse-memfd.git"
   },
   "author": "Mathias Buus (@mafintosh)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/mafintosh/fuse-memory/issues"
+    "url": "https://github.com/rektide/fuse-memfd/issues"
   },
-  "homepage": "https://github.com/mafintosh/fuse-memory"
+  "homepage": "https://github.com/rektide/fuse-memfd"
 }

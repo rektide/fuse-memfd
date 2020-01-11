@@ -1,15 +1,15 @@
-# fuse-memfs
+# fuse-memfd
 
-In memory filesystem backed by FUSE and Javascript
+In memory filesystem backed by FUSE and Javascript and memfd_create
 
 ```
-npm install -g fuse-memfs
+npm install -g fuse-memfd
 ```
 
 ## Usage
 
 ```
-fuse-memfs ./mnt # mounts an in memory filesystem at ./mnt (needs to exists)
+fuse-memfd ./mnt # mounts an in memory filesystem at ./mnt (needs to exists)
 ```
 
 ## Javascript API
@@ -18,8 +18,8 @@ You can access the FUSE operations from JS as well
 
 ```js
 const Fuse = require('fuse-native')
-const memfs = require('fuse-memfs')
-const ops = memfs()
+const memfd = require('fuse-memfd')
+const ops = memfd()
 
 const fuse = new Fuse('./mnt', ops)
 ```

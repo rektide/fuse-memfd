@@ -1,5 +1,6 @@
 const constants = require('filesystem-constants')
 const c = process.platform === 'darwin' ? constants.darwin : constants.linux
+const memfd_create = require('memfd_create')
 
 class Inode {
   constructor (fs, mode, opts) {
@@ -168,11 +169,13 @@ class Directory extends Entry {
   }
 }
 
-const BLOCK_SIZE = 1024 * 1024
+// corresponding to MFD_HUGE_2MB
+const BLOCK_SIZE = 2 * 1024 * 1024
 
 class File extends Entry {
   constructor (opts = {}) {
     super(0 | 0o444 | 0o222 | c.S_IFREG, opts)
+    this.memfd = memfd_create(this.ino, memfd_create.MFD_HUGETLB| memfd_create.MFD_HUGE_2MB)
   }
 
   truncate (size) {
@@ -180,59 +183,18 @@ class File extends Entry {
     const cnt = Math.ceil(size / BLOCK_SIZE)
     this.inode.blocks = this.inode.blocks.slice(0, cnt)
     this.inode.mtime = new Date()
+    fs.ftruncateSync(this.memfd, size)
   }
 
   read (offset, buffer) {
-    let i = Math.floor(offset / BLOCK_SIZE)
-    let o = offset % BLOCK_SIZE
-    let start = 0
-
-    while (start < buffer.length && offset < this.inode.size) {
-      let blk = this.inode.blocks[i++] || Buffer.alloc(BLOCK_SIZE)
-
-      if (i * BLOCK_SIZE + blk.length > this.inode.size) {
-        blk = blk.slice(0, this.inode.size - i * BLOCK_SIZE)
-      }
-
-      if (o) {
-        blk = blk.slice(o)
-        o = 0
-      }
-
-      blk.copy(buffer.slice(start))
-      offset += blk.length
-      start += blk.length
-    }
-
-    this.inode.atime = new Date()
-    return Math.min(buffer.length, start)
+    const len = offset + buffer.length <= this.size ? buffer.length : this.size - offset
+    fs.readSync( this.memfd, 0, len, offset)
+    return len
   }
 
   write (offset, buffer) {
-    let i = Math.floor(offset / BLOCK_SIZE)
-    let o = offset % BLOCK_SIZE
-    let start = 0
-
-    if (offset + buffer.length > this.inode.size) {
-      this.inode.size = offset + buffer.length
-    }
-
-    while (start < buffer.length && offset < this.inode.size) {
-      if (!this.inode.blocks[i]) this.inode.blocks[i] = Buffer.alloc(BLOCK_SIZE)
-      let blk = this.inode.blocks[i++]
-
-      if (o) {
-        blk = blk.slice(o)
-        o = 0
-      }
-
-      buffer.slice(start).copy(blk)
-      start += blk.length
-      offset += blk.length
-    }
-
-    this.inode.mtime = new Date()
-    return Math.min(buffer.length, start)
+    fs.writeSync(this.memfd, buffer, offset)
+    return buffer + offset;
   }
 }
 
